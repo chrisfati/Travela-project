@@ -89,18 +89,24 @@
     const tours = JSON.parse(document.getElementById("toursData").textContent);
 
     function openBookingForm(tourId) {
+        // Convert to number if it's a string
+        tourId = parseInt(tourId);
+
+        // Find the tour object in the tours array
         const tour = tours.find(t => t.id === tourId);
         if (!tour) return;
 
+        // Fill the modal fields with tour data
         document.getElementById("modalTitle").innerText = `Book: ${tour.name}`;
         document.getElementById("packageName").value = tour.name;
         document.getElementById("packageDesc").value = tour.description;
         document.getElementById("packagePrice").value = tour.price;
         document.getElementById("packageDays").value = tour.days;
 
-        // Set the form's action dynamically to your Django URL
+        // Dynamically set the form action to include the tour ID
         document.getElementById("bookingForm").action = `/book_now/${tour.id}/`;
 
+        // Show the modal
         document.getElementById("bookingModal").style.display = "flex";
     }
 
