@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>Booking History</title>
+    <link rel="stylesheet" href="{% static 'css/tours.css' %}">
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+<body>
+
+<header>
+    <h1>Travela</h1>
+    <nav>
+        <a href="{% url 'tour_list' %}">Tours</a>
+        <a href="{% url 'booking_history' %}">Bookings</a>
+    </nav>
+</header>
+
+<h1 class="booking-history-title">Booking History</h1>
+
+<table class="booking-table">
+    <thead>
+        <tr>
+            <th>Customer Name</th>
+            <th>Package Name</th>
+            <th>Number of People</th>
+            <th>Payment Mode</th>
+            <th>Date Booked</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td data-label="Customer Name">{{ booking.customer_name }}</td>
+            <td data-label="Package Name">{{ booking.tour.name }}</td>
+            <td data-label="Number of People">{{ booking.people }}</td>
+            <td data-label="Payment Mode">{{ booking.payment_method }}</td>
+            <td data-label="Date Booked">{{ booking.booking_date|date:"d M Y H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align:center;">No bookings yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

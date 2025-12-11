@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>Tour Packages</title>
+    <link rel="stylesheet" href="{% static 'css/tours.css' %}">
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+</head>
+
+<body>
+
+<header>
+    <h1>Travela</h1>
+    <nav>
+        <a href="{% url 'tour_list' %}">Tours</a>
+        <a href="{% url 'booking_history' %}">Bookings</a>
+    </nav>
+</header>
+
+<div class="tours_container">
+    <h2>Available Tour Packages</h2>
+
+    <div class="tour-grid">
+        {% for tour in tours %}
+        <div class="tour-card">
+            <img src="{{ tour.image.url }}" alt="{{ tour.name }}" class="tour-img">
+            <div class="tour-details">
+                <h2>{{ tour.name }}</h2>
+                <p class="price">Price: KES {{ tour.price }}</p>
+                <p class="days">Days: {{ tour.days }}</p>
+                <button class="book-btn" onclick="openBookingForm('{{ tour.id }}')">Book Now</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- JSON data for JS -->
+<script type="application/json" id="toursData">
+    {{ tours_json|safe }}
+</script>
+
+<!-- Booking Modal -->
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeBookingForm()">&times;</span>
+        <h2 id="modalTitle">Book Package</h2>
+
+        <form id="bookingForm" method="POST">
+            {% csrf_token %}
+            <label>Your Name</label>
+            <input type="text" name="customer_name" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Package Name</label>
+            <input type="text" id="packageName" readonly>
+
+            <label>Description</label>
+            <textarea id="packageDesc" readonly></textarea>
+
+            <label>Price (Ksh)</label>
+            <input type="text" id="packagePrice" readonly>
+
+            <label>Days</label>
+            <input type="text" id="packageDays" readonly>
+
+            <label>Number of People</label>
+            <input type="number" name="people" required>
+
+            <label>Payment Method</label>
+            <select name="payment_method" required>
+                <option value="">-- Select Payment Method --</option>
+                <option value="Mpesa">Mpesa</option>
+                <option value="Bank">Bank</option>
+            </select>
+
+            <div class="buttons">
+                <button type="submit" class="book-btn">Book Now</button>
+                <button type="button" class="cancel-btn" onclick="closeBookingForm()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const tours = JSON.parse(document.getElementById("toursData").textContent);
+
+    function openBookingForm(tourId) {
+        const tour = tours.find(t => t.id === tourId);
+        if (!tour) return;
+
+        document.getElementById("modalTitle").innerText = `Book: ${tour.name}`;
+        document.getElementById("packageName").value = tour.name;
+        document.getElementById("packageDesc").value = tour.description;
+        document.getElementById("packagePrice").value = tour.price;
+        document.getElementById("packageDays").value = tour.days;
+
+        // Set the form's action dynamically to your Django URL
+        document.getElementById("bookingForm").action = `/book_now/${tour.id}/`;
+
+        document.getElementById("bookingModal").style.display = "flex";
+    }
+
+    function closeBookingForm() {
+        document.getElementById("bookingModal").style.display = "none";
+    }
+
+    // Close modal if clicked outside
+    window.onclick = function(event) {
+        const modal = document.getElementById("bookingModal");
+        if (event.target === modal) closeBookingForm();
+    }
+
+    // Optional: show confirmation after booking
+    const bookingForm = document.getElementById("bookingForm");
+    bookingForm.addEventListener("submit", function(event) {
+        // Comment out this line if you want the form to submit normally to Django
+        // event.preventDefault();
+
+        const packageName = document.getElementById("packageName").value;
+        alert(`Package "${packageName}" booked successfully!`);
+
+        // Close modal
+        closeBookingForm();
+    });
+</script>
+
+</body>
+</html>
